@@ -1,8 +1,7 @@
 import math
 import numpy as np
 import plotly.graph_objects as go
-import time
-from numba import njit
+# from numba import njit
 
 class Solver:
     def __init__(self):
@@ -45,7 +44,7 @@ class Solver:
         return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
     @staticmethod
-    @njit
+    # @njit
     def nearest_neighbor(points, distances):
         p = np.arange(len(points))
         solution = np.zeros_like(p)
@@ -61,7 +60,7 @@ class Solver:
         return solution
 
     @staticmethod
-    @njit
+    # @njit
     def nearest_insertion(points, distances):
         solution = [0,0]
         output = []
@@ -145,7 +144,7 @@ class Solver:
         return solution[:-1], output
 
     @staticmethod
-    @njit
+    # @njit
     def two_opt(route, points, improvement_threshold = 0.001):
         improvement_factor = 1
         best_distance = np.array([np.linalg.norm(points[route[p]]-points[route[p-1]]) for p in range(len(route))]).sum()
