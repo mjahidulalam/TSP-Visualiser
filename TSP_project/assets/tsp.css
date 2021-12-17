@@ -1,0 +1,23 @@
+body {
+    background-color: #202324 !important;
+    color: #ffffff !important;
+}
+
+.container {
+    max-width: 1500px; 
+}
+
+.card {
+    color: white;
+    background-color: #2e3333;
+}
+
+#input_alert {
+    color: white;
+}
+
+#node_input {
+    color: white;
+    background-color: #202324;
+}
+
