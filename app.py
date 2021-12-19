@@ -49,6 +49,18 @@ app.layout = html.Div(
                     dbc.Card(
                         dbc.CardBody(
                             html.Div(children=[
+                            dbc.Label("Input number of nodes:"),
+                            # dbc.Input(id='node_input', value='100', placeholder="Input goes here...", type="text"),
+                            dbc.Input(id="node_input", type="number", placeholder="Input",min=5, max=1000, step=1),
+                            dbc.FormText("Type an integer between 5 and 1000 in the box above", id='input_alert',  color='white'),
+                            dbc.Alert(
+                                            "Please enter a number between 5 and 1000",
+                                            id="alert-auto",
+                                            is_open=False,
+                                            duration=4000,
+                                            color='danger'
+                                        ),
+                            html.P(),
                             dbc.Label('Select a method:'),
                             dbc.RadioItems(
                                 id="method_input",
@@ -65,36 +77,29 @@ app.layout = html.Div(
                             dbc.Checklist(
                                 id="LS-input",
                                 options=[
-                                    {"label": "2-opt", "value": "2OPT"},
+                                    {"label": "2-opt", "value": "2OPT", "disabled": "False"},
                                 ],
                                 value=""
                             ),
                             html.P(),
-                            dbc.Label("Input number of nodes:"),
-                            dbc.Input(id='node_input', value='100', placeholder="Input goes here...", type="text"),
-                            dbc.FormText("Type an integer between 5 and 1000 in the box above", id='input_alert',  color='white'),
-                            dbc.Alert(
-                                            "Please enter a number between 5 and 1000",
-                                            id="alert-auto",
-                                            is_open=False,
-                                            duration=4000,
-                                            color='danger'
-                                        ),
-                            html.P(),
+                            dbc.Label('Would you like to animate the results?'),
                             dbc.Checklist(id='animate_input',
                                         options=[{'label': "Animate", 'value': "animate"}],
                                         value=['animate']
                                     ),
                             html.P(),
-                            dbc.Label('Select a speed:'),
-                            dcc.Slider(id='speed_input', min=0, max=400, step=None,
+                            html.Div(id="slider_container", children=[
+                                dbc.Label('Select a speed:'),
+                                dcc.Slider(id='speed_input', min=0, max=300, step=None,
                                         marks={
-                                                400: {'label': 'Slow', 'style':{'color':'#FFFFFF'}},
-                                                200: {'label': 'Medium', 'style':{'color':'#FFFFFF'}},
+                                                300: {'label': 'Slow', 'style':{'color':'#FFFFFF'}},
+                                                200: {'label': '', 'style':{'color':'#FFFFFF'}},
+                                                100: {'label': '', 'style':{'color':'#FFFFFF'}},
                                                 0: {'label': 'Fast', 'style':{'color':'#FFFFFF'}}
                                             },
-                                            value=200,
-                                        ),
+                                            value=200
+                                        )], style={'display':'Block'}
+                            ),
                             html.P(),
                             dcc.Loading(
                                         id="loading-1",
@@ -128,8 +133,37 @@ app.layout = html.Div(
     style={'padding':"2rem"}
 )
 
+@app.callback([Output('speed_input','value'),
+                Output('slider_container','style'),
+                Output('LS-input','options')],
+                [Input('node_input', 'value'),
+                Input('animate_input', 'value')])
+def update_options(node_input, animate):
+    speed_value = 200
+    slider_style = {'display':'Block'}
+    ls_disabled = [{"label": "2-opt", "value": "2OPT", "disabled": False}]
+
+    if len(animate) == 0:
+        slider_style = {'display':'None'}
+         
+    if node_input is None:
+        print('something')
+        return speed_value, slider_style, ls_disabled
+    else:
+        if node_input < 50:
+            speed_value = 300
+        elif node_input >= 50 and node_input < 100:
+            speed_value = 200
+        elif node_input >= 100 and node_input < 300:
+            speed_value = 100
+        elif node_input >= 300 and node_input < 500:
+            speed_value = 0
+        else:
+            speed_value = 0
+            ls_disabled = [{"label": "2-opt", "value": "2OPT", "disabled": True}]
+    return speed_value, slider_style, ls_disabled
+
 @app.callback([Output('graph', 'figure'),
-                Output("input_alert", "color"),
                 Output('submit-button','children')],
                 Input('submit-button', 'n_clicks'),
                 [State('speed_input', 'value'),
@@ -138,14 +172,15 @@ app.layout = html.Div(
                 State('node_input', 'value'),
                 State('animate_input', 'value')])
 def update_output(s_clicks, speed_input, method_input, LS_input, node_input, animate_input):
+    print(speed_input)
 
-    try:
-        int(node_input)
-    except:
-            return fig, 'red', "Submit"
+    # try:
+    #     int(node_input)
+    # except:
+    #         return fig, 'red', "Submit"
     
-    if (int(node_input) < 5 or int(node_input) > 1000) and s_clicks is not None:
-        return fig, 'red', "Submit"
+    if node_input is None:
+        return fig, "Submit"
 
     if s_clicks is not None:
         points, solution, data= solver.solve_it(node_input, method_input, LS_input, animate_input, **style)
@@ -221,7 +256,7 @@ def update_output(s_clicks, speed_input, method_input, LS_input, node_input, ani
 
         fig.frames = data
 
-    return fig, "white", "Submit"
+    return fig, "Submit"
 
 if __name__ == '__main__':
     app.run_server(debug=True)
