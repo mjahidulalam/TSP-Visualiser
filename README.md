@@ -1,5 +1,4 @@
 # Travelling Salesperson Problem Visualizer
-<br>
 [Click here to see for youself!](https://tsp-visualizer.herokuapp.com/)
 <br/>
 
