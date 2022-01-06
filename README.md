@@ -6,3 +6,4 @@ Web app created using Plotly Dash and Flask to help visualise algorithms used to
 - 2-opt
 
 I am curently working on adding more algorithms to the app.
+[Click here to see for youself!](https://tsp-visualizer.herokuapp.com/)
